@@ -363,7 +363,7 @@ const app = {
         document.getElementById('input-menu-id').value = id;
         document.getElementById('input-menu-name').value = name;
         document.getElementById('input-menu-price').value = price;
-        document.getElementById('input-menu-icon').value = icon || '🍽️';
+        document.getElementById('input-menu-icon').value = icon || '';
         
         document.getElementById('modal-menu-title').innerText = id ? 'Ubah Menu' : 'Tambah Menu';
         document.getElementById('modal-menu').classList.add('active');
@@ -379,8 +379,6 @@ const app = {
             this.showAlert('Nama dan Harga (angka) harus diisi dengan benar!', 'error');
             return;
         }
-
-        if(!icon) icon = '🍽️';
 
         if (id) {
             // Edit
