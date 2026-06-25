@@ -7,7 +7,14 @@ const State = {
     dailySalesTunai: 0,
     dailySalesNonTunai: 0,
     soldItems: {}, // Format: { menuId: quantity }
-    paymentMethod: 'tunai'
+    paymentMethod: 'tunai',
+    isPlaying: false,
+    audioPlayer: new Audio(),
+    dangdutPlaylist: [
+        'https://archive.org/download/01.Rhomairama-Begadang/01.%20Rhoma%20Irama%20-%20Begadang.mp3', // Rhoma Irama - Begadang
+        'https://archive.org/download/rhoma-irama-darah-muda/Rhoma%20Irama%20-%20Darah%20Muda.mp3', // Rhoma Irama - Darah Muda
+        'https://archive.org/download/kopi-dangdut/Kopi%20Dangdut.mp3' // Kopi Dangdut
+    ]
 };
 
 // Default initial data if localStorage is empty
@@ -27,6 +34,12 @@ function initApp() {
     renderManageMenu();
     updateCartUI();
     renderRekap();
+    
+    // Putar otomatis lagu dangdut acak selanjutnya kalau lagunya habis
+    State.audioPlayer.onended = () => {
+        State.isPlaying = false;
+        app.toggleMusic();
+    };
 }
 
 // --- DATA PERSISTENCE (LOCAL STORAGE) ---
@@ -121,6 +134,29 @@ const app = {
         newBtnCancel.onclick = () => {
             confirmModal.classList.remove('active');
         };
+    },
+
+    toggleMusic: function() {
+        const btn = document.getElementById('btn-music');
+        if (State.isPlaying) {
+            State.audioPlayer.pause();
+            State.isPlaying = false;
+            btn.innerText = '🎵';
+            btn.style.transform = 'scale(1) rotate(0deg)';
+        } else {
+            // Pilih lagu random
+            const randomSong = State.dangdutPlaylist[Math.floor(Math.random() * State.dangdutPlaylist.length)];
+            State.audioPlayer.src = randomSong;
+            State.audioPlayer.play().then(() => {
+                State.isPlaying = true;
+                btn.innerText = '🎶';
+                btn.style.transform = 'scale(1.1) rotate(15deg)';
+                app.showAlert('Memutar Lagu Dangdut! 💃🕺', 'success');
+            }).catch(err => {
+                app.showAlert('Gagal memutar lagu. Link mungkin mati.', 'error');
+                console.error(err);
+            });
+        }
     },
 
     switchView: function(viewId, title, btnElement) {
