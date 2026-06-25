@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kasir Warung</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-time" id="status-time">9:41</div>
+            <div class="status-icons">
+                <!-- Sinyal -->
+                <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                    <rect x="2" y="8" width="3" height="4" rx="1" fill="currentColor"/>
+                    <rect x="7" y="5" width="3" height="7" rx="1" fill="currentColor"/>
+                    <rect x="12" y="2" width="3" height="10" rx="1" fill="currentColor"/>
+                </svg>
+                <!-- WiFi -->
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                    <path d="M15 2.5C11.5 -0.5 4.5 -0.5 1 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 5.5C9.5 3.5 6.5 3.5 4 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="8" cy="9" r="1.5" fill="currentColor"/>
+                </svg>
+                <!-- Battery -->
+                <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+                    <rect x="0.5" y="1.5" width="20" height="9" rx="2.5" stroke="currentColor" stroke-width="1"/>
+                    <rect x="2" y="3" width="13" height="6" rx="1" fill="currentColor"/>
+                    <path d="M22 4V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="app-header">
+            <h1 id="page-title">Kasir Warung</h1>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="app-content">
+            
+            <!-- VIEW: KASIR -->
+            <section id="view-kasir" class="view-section active">
+                <div class="menu-grid" id="menu-container">
+                    <!-- Menu items will be injected here by JS -->
+                </div>
+                
+                <div class="cart-summary">
+                    <div class="cart-total-box">
+                        <span>Total:</span>
+                        <span id="cart-total-price">Rp 0</span>
+                    </div>
+                    <button class="btn btn-primary btn-huge" id="btn-bayar" onclick="app.showPaymentModal()">BAYAR</button>
+                    <button class="btn btn-danger btn-large mt-10" id="btn-batal" onclick="app.clearCart()">BATAL (Hapus)</button>
+                    <div class="cart-items" id="cart-items-list">
+                        <!-- Keranjang belanja -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: REKAP -->
+            <section id="view-rekap" class="view-section">
+                <div class="rekap-card">
+                    <h2>Total Penjualan Hari Ini</h2>
+                    <div class="rekap-total" id="rekap-total-sales">Rp 0</div>
+                </div>
+                <div class="rekap-card mt-20">
+                    <h2>Daftar Menu Terjual</h2>
+                    <ul class="sold-items-list" id="rekap-sold-items">
+                        <!-- Sold items will be injected here -->
+                    </ul>
+                </div>
+                <button class="btn btn-danger btn-large mt-20" onclick="app.resetHarian()">TUTUP WARUNG (Reset Data)</button>
+            </section>
+
+            <!-- VIEW: MENU -->
+            <section id="view-menu" class="view-section">
+                <button class="btn btn-primary btn-large mb-20" onclick="app.showAddMenuModal()">+ TAMBAH MENU BARU</button>
+                <div class="menu-management-list" id="manage-menu-list">
+                    <!-- Manage menu items -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-target="view-kasir" onclick="app.switchView('view-kasir', 'Kasir', this)">
+                <span class="nav-icon">💰</span>
+                Kasir
+            </button>
+            <button class="nav-item" data-target="view-rekap" onclick="app.switchView('view-rekap', 'Rekap Harian', this)">
+                <span class="nav-icon">📊</span>
+                Rekap
+            </button>
+            <button class="nav-item" data-target="view-menu" onclick="app.switchView('view-menu', 'Kelola Menu', this)">
+                <span class="nav-icon">🍲</span>
+                Menu
+            </button>
+        </nav>
+
+        <!-- Modals -->
+        
+        <!-- Payment Modal -->
+        <div class="modal-overlay" id="modal-payment">
+            <div class="modal-content">
+                <h2>Pembayaran</h2>
+                <div class="payment-info mb-20">
+                    <p>Total Tagihan</p>
+                    <h3 id="payment-total-display">Rp 0</h3>
+                </div>
+
+                <div class="payment-method-toggle mb-20" style="display:flex; gap:10px; background:var(--gray-100); padding:5px; border-radius:var(--radius-lg);">
+                    <button class="btn btn-primary" id="btn-method-tunai" style="flex:1; border-radius:var(--radius-md);" onclick="app.setPaymentMethod('tunai')">💵 Tunai</button>
+                    <button class="btn btn-secondary" style="flex:1; background:transparent; color:var(--text-muted); box-shadow:none; border-radius:var(--radius-md);" id="btn-method-nontunai" onclick="app.setPaymentMethod('nontunai')">📱 QRIS / Transfer</button>
+                </div>
+
+                <div id="tunai-section">
+                    <div class="form-group">
+                        <label>Uang Tunai (Rp):</label>
+                        <input type="number" id="input-uang" class="input-huge" placeholder="0" oninput="app.calculateChange()">
+                        
+                        <div class="quick-cash-grid">
+                            <button onclick="app.setCashExact()">Uang Pas</button>
+                            <button onclick="app.setQuickCash(20000)">20.000</button>
+                            <button onclick="app.setQuickCash(50000)">50.000</button>
+                            <button onclick="app.setQuickCash(100000)">100.000</button>
+                        </div>
+                    </div>
+
+                    <div class="payment-info return-info mt-20" id="change-info-box">
+                        <p>Kembalian</p>
+                        <h3 class="highlight" id="payment-change-display">Rp 0</h3>
+                    </div>
+                </div>
+
+                <div class="modal-actions mt-20">
+                    <button class="btn btn-secondary btn-large mb-10" onclick="app.closeModal('modal-payment')">KEMBALI</button>
+                    <button class="btn btn-primary btn-huge" id="btn-selesai-bayar" onclick="app.processPayment()">SELESAI</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Menu Modal -->
+        <div class="modal-overlay" id="modal-menu">
+            <div class="modal-content">
+                <h2 id="modal-menu-title">Tambah Menu</h2>
+                <input type="hidden" id="input-menu-id">
+                
+                <div class="form-group mt-20">
+                    <label>Nama Menu:</label>
+                    <input type="text" id="input-menu-name" class="input-large" placeholder="Misal: Nasi Putih">
+                </div>
+                
+                <div class="form-group">
+                    <label>Harga (Rp):</label>
+                    <input type="number" id="input-menu-price" class="input-large" placeholder="Misal: 5000">
+                </div>
+
+                <div class="form-group">
+                    <label>Ikon (Emoji):</label>
+                    <input type="text" id="input-menu-icon" class="input-large" placeholder="Misal: 🍚" maxlength="2">
+                </div>
+                
+                <div class="modal-actions mt-20">
+                    <button class="btn btn-secondary btn-large mb-10" onclick="app.closeModal('modal-menu')">BATAL</button>
+                    <button class="btn btn-primary btn-large" onclick="app.saveMenu()">SIMPAN</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Alert / Toast (iOS Banner Style) -->
+        <div id="custom-toast" class="custom-toast">
+            <div class="toast-icon">✅</div>
+            <div class="toast-content">
+                <div class="toast-title" id="toast-title">Notifikasi</div>
+                <div class="toast-message" id="toast-message">Pesan di sini</div>
+            </div>
+        </div>
+
+        <!-- Custom Confirm Dialog -->
+        <div class="modal-overlay" id="custom-confirm">
+            <div class="modal-content confirm-content">
+                <h2 id="confirm-title" style="margin-bottom:15px; border:none; padding-bottom:0;">Konfirmasi</h2>
+                <p id="confirm-message" style="text-align:center; font-size:16px; margin-bottom:20px; color:var(--dark); font-weight:800; line-height:1.4;"></p>
+                <div class="modal-actions" style="display:flex; gap:10px;">
+                    <button class="btn btn-secondary btn-large" id="btn-confirm-cancel">BATAL</button>
+                    <button class="btn btn-danger btn-large" id="btn-confirm-ok">YAKIN</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
