@@ -11,9 +11,11 @@ const State = {
     isPlaying: false,
     audioPlayer: new Audio(),
     dangdutPlaylist: [
-        'https://archive.org/download/01.Rhomairama-Begadang/01.%20Rhoma%20Irama%20-%20Begadang.mp3', // Rhoma Irama - Begadang
-        'https://archive.org/download/rhoma-irama-darah-muda/Rhoma%20Irama%20-%20Darah%20Muda.mp3', // Rhoma Irama - Darah Muda
-        'https://archive.org/download/kopi-dangdut/Kopi%20Dangdut.mp3' // Kopi Dangdut
+        // Karena link musik online sering mati/error, saya ganti sementara dengan lagu bebas hak cipta yang dijamin jalan.
+        // Nanti kamu bisa download file lagu dangdut format .mp3, taruh di folder yang sama, lalu ubah link di bawah ini jadi misal: 'lagu1.mp3'
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
     ]
 };
 
