@@ -148,7 +148,7 @@ const app = {
             State.cart[menuId] = 1;
         }
         this.calculateTotalCart();
-        renderMenuGrid(); // Re-render to show qty badges
+        updateMenuBadges(menuId);
         updateCartUI();
     },
 
@@ -159,7 +159,7 @@ const app = {
                 delete State.cart[menuId];
             }
             this.calculateTotalCart();
-            renderMenuGrid();
+            updateMenuBadges(menuId);
             updateCartUI();
         }
     },
@@ -167,7 +167,7 @@ const app = {
     clearCart: function() {
         State.cart = {};
         this.calculateTotalCart();
-        renderMenuGrid();
+        updateMenuBadges();
         updateCartUI();
     },
 
@@ -383,12 +383,8 @@ function renderMenuGrid() {
     container.innerHTML = '';
 
     State.menus.forEach(menu => {
-        const qty = State.cart[menu.id] || 0;
-        const badgeHtml = qty > 0 ? `<div class="menu-qty-badge">${qty}</div>` : '';
-        
         const html = `
-            <div class="menu-wrapper" onclick="app.addToCart('${menu.id}')">
-                ${badgeHtml}
+            <div class="menu-wrapper" id="menu-wrapper-${menu.id}" onclick="app.addToCart('${menu.id}')">
                 <div class="menu-item-btn">
                     <div class="menu-icon-wrapper">
                         <div class="menu-icon">${menu.icon}</div>
@@ -399,6 +395,38 @@ function renderMenuGrid() {
             </div>
         `;
         container.insertAdjacentHTML('beforeend', html);
+    });
+    updateMenuBadges();
+}
+
+function updateMenuBadges(clickedId = null) {
+    State.menus.forEach(menu => {
+        const qty = State.cart[menu.id] || 0;
+        let badgeEl = document.getElementById(`badge-${menu.id}`);
+        
+        if (qty > 0) {
+            let isNew = false;
+            if (!badgeEl) {
+                const wrapper = document.getElementById(`menu-wrapper-${menu.id}`);
+                if (wrapper) {
+                    wrapper.insertAdjacentHTML('afterbegin', `<div class="menu-qty-badge" id="badge-${menu.id}"></div>`);
+                    badgeEl = document.getElementById(`badge-${menu.id}`);
+                    isNew = true;
+                }
+            }
+            if (badgeEl) {
+                badgeEl.innerText = qty;
+                if (!isNew && menu.id === clickedId) {
+                    badgeEl.classList.remove('pop-anim');
+                    void badgeEl.offsetWidth; // trigger reflow
+                    badgeEl.classList.add('pop-anim');
+                } else if (isNew) {
+                    badgeEl.classList.add('pop-anim');
+                }
+            }
+        } else {
+            if (badgeEl) badgeEl.remove();
+        }
     });
 }
 
