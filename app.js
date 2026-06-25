@@ -4,6 +4,8 @@ const State = {
     cart: {}, // Format: { menuId: quantity }
     totalCart: 0,
     dailySales: 0,
+    dailySalesTunai: 0,
+    dailySalesNonTunai: 0,
     soldItems: {}, // Format: { menuId: quantity }
     paymentMethod: 'tunai'
 };
@@ -40,6 +42,12 @@ function loadData() {
     const savedDailySales = localStorage.getItem('warung_dailySales');
     if (savedDailySales) State.dailySales = parseInt(savedDailySales);
 
+    const savedTunai = localStorage.getItem('warung_tunai');
+    if (savedTunai) State.dailySalesTunai = parseInt(savedTunai);
+
+    const savedNonTunai = localStorage.getItem('warung_nonTunai');
+    if (savedNonTunai) State.dailySalesNonTunai = parseInt(savedNonTunai);
+
     const savedSoldItems = localStorage.getItem('warung_soldItems');
     if (savedSoldItems) State.soldItems = JSON.parse(savedSoldItems);
 }
@@ -50,6 +58,8 @@ function saveMenus() {
 
 function saveTransaction() {
     localStorage.setItem('warung_dailySales', State.dailySales.toString());
+    localStorage.setItem('warung_tunai', State.dailySalesTunai.toString());
+    localStorage.setItem('warung_nonTunai', State.dailySalesNonTunai.toString());
     localStorage.setItem('warung_soldItems', JSON.stringify(State.soldItems));
 }
 
@@ -271,6 +281,11 @@ const app = {
 
         // Add to daily sales
         State.dailySales += State.totalCart;
+        if (State.paymentMethod === 'tunai') {
+            State.dailySalesTunai += State.totalCart;
+        } else {
+            State.dailySalesNonTunai += State.totalCart;
+        }
 
         // Add to sold items
         for (const menuId in State.cart) {
@@ -296,6 +311,8 @@ const app = {
     resetHarian: function() {
         this.showConfirm('Yakin ingin mereset data hari ini? Total penjualan dan riwayat menu akan kembali jadi 0.', () => {
             State.dailySales = 0;
+            State.dailySalesTunai = 0;
+            State.dailySalesNonTunai = 0;
             State.soldItems = {};
             saveTransaction();
             renderRekap();
@@ -443,6 +460,11 @@ function updateCartUI() {
 
 function renderRekap() {
     document.getElementById('rekap-total-sales').innerText = formatRupiah(State.dailySales);
+    
+    const elTunai = document.getElementById('rekap-tunai');
+    const elNonTunai = document.getElementById('rekap-nontunai');
+    if(elTunai) elTunai.innerText = formatRupiah(State.dailySalesTunai || 0);
+    if(elNonTunai) elNonTunai.innerText = formatRupiah(State.dailySalesNonTunai || 0);
     
     const soldList = document.getElementById('rekap-sold-items');
     soldList.innerHTML = '';
